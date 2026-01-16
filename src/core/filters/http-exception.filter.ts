@@ -10,7 +10,6 @@ import { LoggerService } from '../logger/logger.service';
 
 @Catch()
 export class AllExceptionsLoggerFilter implements ExceptionFilter {
-  // private readonly logger = new Logger('AllExceptions');
   constructor(private readonly logger: LoggerService) {}
 
   public catch(exception: unknown, host: ArgumentsHost) {
