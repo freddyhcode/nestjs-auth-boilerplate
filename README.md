@@ -25,7 +25,7 @@ Boilerplate de autenticación, recuperación de cuenta basada en links de un sol
 > - **Sesiones Simultáneas:** Soporta múltiples dispositivos (no se cierran sesiones al loguearse en otro).
 > - **Rotación:** El `refresh_token` solo se rota si le quedan menos de 2 días de vida (Optimización de DB).
 > - **Dynamic Modules:** Implementación de módulos desacoplados (Mail & Logger) usando el patrón estándar.
-> - **Testing (En progreso):** Actualmente no se incluyen E2E (Auth) ni Unit test (Services).
+> - **Testing:** Infraestructura base de Jest configurada (Tests E2E y Unitarios en el roadmap).
 > - **Pruebas de estres:** Se incluye soporte para pruebas de estrés con **k6**.
 
 ---
@@ -48,13 +48,17 @@ Para una comprensión de la arquitectura y flujos:
 ### 1. Clonar el Repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/nest-auth-boilerplate.git
+git clone https://github.com/froddodev/nest-auth-boilerplate.git
 cd nest-auth-boilerplate
 ```
 
 ### 2. Variables de Entorno
 
-Crea un archivo `.env` en la raíz del proyecto (puedes copiar `.env.example`).
+Copia el archivo `.env.example` (o `.env.template`) a un nuevo archivo `.env`:
+
+```bash
+cp .env.example .env
+```
 
 #### General
 
@@ -89,7 +93,7 @@ Crea un archivo `.env` en la raíz del proyecto (puedes copiar `.env.example`).
 
 | Variable          | Por Defecto            | Descripción                                  |
 | :---------------- | :--------------------- | :------------------------------------------- |
-| `MAIL_HOST`       | localhost              | Servidor SMTP (ej. MailDev).        |
+| `MAIL_HOST`       | localhost              | Servidor SMTP (ej. MailDev).                 |
 | `MAIL_PORT`       | 1025                   | Puerto SMTP.                                 |
 | `MAIL_SECURE`     | false                  | Uso de SSL/TLS.                              |
 | `MAIL_IGNORE_TLS` | true                   | Ignorar certificados TLS (útil en dev).      |
@@ -295,7 +299,6 @@ Puedes ejecutar diferentes suites de pruebas según el módulo:
 | `yarn k6:register`        | Suite completa de estrés para el endpoint de register.        |
 | `yarn k6:forgot-password` | Suite completa de estrés para el endpoint de forgot-password. |
 | `yarn k6:change-password` | Suite completa de estrés para el endpoint de change-password. |
-
 
 > _Nota: Cada comando ejecuta escenarios de **Load**, **Stress**, **Spike** y **Smoke**._
 
