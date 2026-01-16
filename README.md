@@ -89,7 +89,7 @@ Crea un archivo `.env` en la raíz del proyecto (puedes copiar `.env.example`).
 
 | Variable          | Por Defecto            | Descripción                                  |
 | :---------------- | :--------------------- | :------------------------------------------- |
-| `MAIL_HOST`       | localhost              | Servidor SMTP (ej. MailDev, AWS SES).        |
+| `MAIL_HOST`       | localhost              | Servidor SMTP (ej. MailDev).        |
 | `MAIL_PORT`       | 1025                   | Puerto SMTP.                                 |
 | `MAIL_SECURE`     | false                  | Uso de SSL/TLS.                              |
 | `MAIL_IGNORE_TLS` | true                   | Ignorar certificados TLS (útil en dev).      |
