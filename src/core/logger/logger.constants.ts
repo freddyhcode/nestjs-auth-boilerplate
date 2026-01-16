@@ -1,0 +1,1 @@
+export const LOGGER_CONFIG_OPTIONS = Symbol('LOGGER_CONFIG_OPTIONS');

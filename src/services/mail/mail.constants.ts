@@ -1,0 +1,1 @@
+export const MAIL_CONFIG_OPTIONS = Symbol('MAIL_CONFIG_OPTIONS');

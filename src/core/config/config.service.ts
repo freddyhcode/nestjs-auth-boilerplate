@@ -1,0 +1,185 @@
+import { Injectable } from '@nestjs/common';
+import { z } from 'zod';
+
+@Injectable()
+export class ConfigService {
+  private readonly config: any;
+
+  readonly project: {
+    prefix: string;
+    port: number;
+    typeormSync: boolean;
+  };
+
+  readonly database: {
+    host: string;
+    port: number;
+    name: string;
+    username: string;
+    password: string;
+  };
+
+  readonly jwt: {
+    secret: string;
+    refreshSecret: string;
+    expiresIn: string;
+    refreshExpiresIn: string;
+    refreshThresholdDays: number;
+  };
+
+  readonly mail: {
+    host: string;
+    port: number;
+    secure: boolean;
+    ignoreTls: boolean;
+    user?: string;
+    pass?: string;
+    from: string;
+  };
+
+  readonly frontend: {
+    url: string;
+    cors: string[];
+  };
+
+  readonly throttler: {
+    ttl: number;
+    limit: number;
+  };
+
+  readonly logger: {
+    console: boolean;
+    local: boolean;
+  };
+
+  constructor() {
+    this.config = this.validateEnv();
+
+    this.project = {
+      prefix: this.config.PROJECT_PREFIX,
+      port: this.config.PROJECT_PORT,
+      typeormSync: this.config.TYPEORM_SYNC,
+    };
+
+    this.database = {
+      host: this.config.DB_HOST,
+      port: this.config.DB_PORT,
+      name: this.config.DB_NAME,
+      username: this.config.DB_USERNAME,
+      password: this.config.DB_PASSWORD,
+    };
+
+    this.jwt = {
+      secret: this.config.JWT_SECRET,
+      refreshSecret: this.config.REFRESH_TOKEN_SECRET,
+      expiresIn: this.config.JWT_EXPIRES_IN,
+      refreshExpiresIn: this.config.REFRESH_TOKEN_EXPIRES_IN,
+      refreshThresholdDays: this.config.REFRESH_TOKEN_THRESHOLD_DAYS,
+    };
+
+    this.mail = {
+      host: this.config.MAIL_HOST,
+      port: this.config.MAIL_PORT,
+      secure: this.config.MAIL_SECURE,
+      ignoreTls: this.config.MAIL_IGNORE_TLS,
+      user: this.config.MAIL_USER,
+      pass: this.config.MAIL_PASS,
+      from: this.config.MAIL_FROM,
+    };
+
+    this.frontend = {
+      url: this.config.FRONTEND_URL,
+      cors: this.config.FRONTEND_CORS.split(',').map((origin: any) =>
+        origin.trim(),
+      ),
+    };
+
+    this.throttler = {
+      ttl: this.config.THROTTLE_TTL,
+      limit: this.config.THROTTLE_LIMIT,
+    };
+
+    this.logger = {
+      console: this.config.LOG_CONSOLE,
+      local: this.config.LOG_LOCAL,
+    };
+  }
+
+  private validateEnv() {
+    const schema = z
+      .object({
+        NODE_ENV: z.enum(['development', 'production']).default('development'),
+        PROJECT_PREFIX: z.string().default('api/v1'),
+        PROJECT_PORT: z.coerce.number().default(3000),
+        // Database
+        DB_HOST: z.string(),
+        DB_PORT: z.coerce.number().default(5432),
+        DB_NAME: z.string(),
+        DB_USERNAME: z.string(),
+        DB_PASSWORD: z.string(),
+        TYPEORM_SYNC: z.string().default('false').transform((val) => val === 'true'),
+        // JWT
+        JWT_SECRET: z.string(),
+        REFRESH_TOKEN_SECRET: z.string(),
+        JWT_EXPIRES_IN: z.string().default('1h'),
+        REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
+        REFRESH_TOKEN_THRESHOLD_DAYS: z.coerce.number().default(2),
+        // Mail
+        MAIL_HOST: z.string(),
+        MAIL_PORT: z.coerce.number().default(2525),
+        MAIL_SECURE: z.string().default('false').transform((val) => val === 'true'),
+        MAIL_IGNORE_TLS: z.string().default('true').transform((val) => val === 'true'),
+        MAIL_USER: z.string().optional(),
+        MAIL_PASS: z.string().optional(),
+        MAIL_FROM: z.string(),
+        // Frontend
+        FRONTEND_URL: z.string().default('*'),
+        FRONTEND_CORS: z.string().default('*'),
+        // Throttler
+        THROTTLE_TTL: z.coerce.number().default(60000),
+        THROTTLE_LIMIT: z.coerce.number().default(10),
+        // Logger
+        LOG_CONSOLE: z.string().default('true').transform((val) => val === 'true'),
+        LOG_LOCAL: z.string().default('true').transform((val) => val === 'true'),
+      })
+      .superRefine((env, ctx) => {
+        if (env.NODE_ENV === 'production' && env.TYPEORM_SYNC) {
+          ctx.addIssue({
+            path: ['TYPEORM_SYNC'],
+            message: 'TYPEORM_SYNC cannot be active in production',
+            code: 'custom',
+          });
+        }
+        if (env.MAIL_IGNORE_TLS && (env.MAIL_USER || env.MAIL_PASS)) {
+          ctx.addIssue({
+            path: ['MAIL_IGNORE_TLS'],
+            message:
+              'MAIL_IGNORE_TLS=true cannot be used along with MAIL_USER/PASS',
+            code: 'custom',
+          });
+        }
+
+        if (
+          !env.MAIL_IGNORE_TLS &&
+          env.MAIL_SECURE === false &&
+          env.NODE_ENV === 'production'
+        ) {
+          ctx.addIssue({
+            path: ['MAIL_SECURE'],
+            message: 'In production you must use TLS or SSL for mail',
+            code: 'custom',
+          });
+        }
+      });
+
+    return schema.parse(process.env);
+  }
+
+  public isDevelopment(): boolean {
+    return this.config.NODE_ENV === 'development';
+  }
+
+  public isProduction(): boolean {
+    return this.config.NODE_ENV === 'production';
+  }
+}
