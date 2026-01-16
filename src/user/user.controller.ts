@@ -1,17 +1,11 @@
-import {
-  Controller,
-  Get,
-  Patch,
-  Body,
-  UseGuards,
-  Request,
-} from '@nestjs/common';
+import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from './enums/user-role.enum';
 import { UpdatePasswordDto } from '../auth/dto/update-password.dto';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
@@ -29,19 +23,16 @@ export class UserController {
 
   @Roles(UserRole.USER, UserRole.ADMIN)
   @Get('profile')
-  public async getProfile(@Request() req) {
-    return this.userService.getProfile(req.user.userId);
+  public async getProfile(@CurrentUser('userId') userId) {
+    return this.userService.getProfile(userId);
   }
 
   @Roles(UserRole.USER, UserRole.ADMIN)
   @Patch('update-password')
   public async updatePasswordSelf(
-    @Request() req,
+    @CurrentUser('userId') userId,
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
-    return this.userService.updatePasswordSelf(
-      req.user.userId,
-      updatePasswordDto,
-    );
+    return this.userService.updatePasswordSelf(userId, updatePasswordDto);
   }
 }
