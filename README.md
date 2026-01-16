@@ -338,7 +338,11 @@ Implementar cambios o nuevas funciones en la lógica de negocio es sumamente sen
 
 > [!NOTE]
 > **Nota del Desarrollador:**
-> Este boilerplate es de uso totalmente libre para que lo uses como base en cualquier proyecto. El código está diseñado para ser limpio y desacoplado, así que implementar Unit Tests o E2E será un proceso muy fluido si decides escalarlo. Úsalo bajo tu propia responsabilidad; no me hago cargo de fallos técnicos o de seguridad en implementaciones externas. Espero te sirva, éxito!
+> Este boilerplate es de uso totalmente libre para que lo uses como base en cualquier proyecto. El código está diseñado para ser limpio y desacoplado, así que implementar Unit Tests o E2E será un proceso muy fluido si decides escalarlo. Úsalo bajo tu propia responsabilidad; no me hago cargo de fallos técnicos o de seguridad en implementaciones externas.
+>
+> "Oye, pero ya eres un León en una selva de gatitos." 🦁
+>
+> Espero te sirva, éxito!
 
 ---
 
