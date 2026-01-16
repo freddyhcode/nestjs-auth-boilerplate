@@ -2,7 +2,7 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import {
   BASE_URL,
-  AUTH_HEADERS_PORPUSE,
+  AUTH_HEADERS_PURPOSE,
   DEFAULT_THRESHOLDS,
   USER,
   PASSWORD,
@@ -60,12 +60,11 @@ export const options = {
 
 export default function () {
   const payload = JSON.stringify({
-    email: USER,
-    password: PASSWORD,
+    newPassword: PASSWORD,
   });
 
   const res = http.post(`${BASE_URL}/auth/change-password`, payload, {
-    headers: AUTH_HEADERS_PORPUSE,
+    headers: AUTH_HEADERS_PURPOSE,
   });
 
   check(res, {

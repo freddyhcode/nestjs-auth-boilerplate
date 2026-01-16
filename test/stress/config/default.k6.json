@@ -2,6 +2,7 @@
   "base_url": "http://localhost:3000/api/v1",
   "user": "user@example.com",
   "password": "password123",
+  "full_name": "Test User",
   "access_token": "my_access_token",
   "purpose_token": "my_purpose_token"
 }

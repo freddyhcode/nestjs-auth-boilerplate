@@ -2,10 +2,11 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import {
   BASE_URL,
-  AUTH_HEADERS,
+  DEFAULT_HEADERS,
   DEFAULT_THRESHOLDS,
   USER,
   PASSWORD,
+  FULL_NAME,
 } from './config/config.js';
 
 export const options = {
@@ -62,10 +63,11 @@ export default function () {
   const payload = JSON.stringify({
     email: USER,
     password: PASSWORD,
+    full_name: FULL_NAME,
   });
 
   const res = http.post(`${BASE_URL}/auth/register`, payload, {
-    headers: AUTH_HEADERS,
+    headers: DEFAULT_HEADERS,
   });
 
   check(res, {

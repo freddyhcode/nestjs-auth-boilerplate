@@ -2,7 +2,7 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import {
   BASE_URL,
-  AUTH_HEADERS,
+  DEFAULT_HEADERS,
   DEFAULT_THRESHOLDS,
   USER,
   PASSWORD,
@@ -61,11 +61,10 @@ export const options = {
 export default function () {
   const payload = JSON.stringify({
     email: USER,
-    password: PASSWORD,
   });
 
   const res = http.post(`${BASE_URL}/auth/forgot-password`, payload, {
-    headers: AUTH_HEADERS,
+    headers: DEFAULT_HEADERS,
   });
 
   check(res, {

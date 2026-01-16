@@ -311,7 +311,7 @@ Para ejecutar las pruebas de carga, es necesario tener instalado **k6**, las ins
 Las pruebas utilizan su propio archivo de configuración:
 
 - **Archivo**: `test/stress/config/default.k6.json`
-- **Variables**: `base_url`, `user`, `password`, `access_token`, `purpose_token`.
+- **Variables**: `base_url`, `user`, `password`, `full_name`, `access_token`, `purpose_token`.
 
 ### Resultados de Referencia (Auth Login)
 

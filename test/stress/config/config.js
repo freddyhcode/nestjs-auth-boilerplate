@@ -4,6 +4,7 @@ export const BASE_URL = CONFIG.base_url;
 
 export const USER = CONFIG.user;
 export const PASSWORD = CONFIG.password;
+export const FULL_NAME = CONFIG.full_name;
 export const ACCESS_TOKEN = CONFIG.access_token;
 export const PURPOSE_TOKEN = CONFIG.purpose_token;
 
@@ -16,7 +17,7 @@ export const AUTH_HEADERS_ACCESS_TOKEN = {
   Authorization: `Bearer ${ACCESS_TOKEN}`,
 };
 
-export const AUTH_HEADERS_PORPUSE = {
+export const AUTH_HEADERS_PURPOSE = {
   ...DEFAULT_HEADERS,
   Authorization: `Bearer ${PURPOSE_TOKEN}`,
 };
