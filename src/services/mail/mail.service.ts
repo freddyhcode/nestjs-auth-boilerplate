@@ -1,7 +1,7 @@
 import * as nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { Inject, Injectable } from '@nestjs/common';
-import { MAIL_CONFIG_OPTIONS } from './mail.constants';
+import { MAIL_CONFIG_OPTIONS } from './constants/mail.constant';
 import type { MailModuleOptions } from './interfaces/mail-options.interface';
 import { resetPasswordTemplate } from './template/reset-password.template';
 import { MailType } from './enums/mail-type.enum';
@@ -20,7 +20,7 @@ export class MailService {
       secure: this.options.secure,
       ignoreTLS: this.options.ignoreTls,
     };
-    
+
     if (this.options.user && this.options.pass) {
       transportOptions.auth = {
         user: this.options.user,

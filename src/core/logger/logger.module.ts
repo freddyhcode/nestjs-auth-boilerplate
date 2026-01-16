@@ -4,7 +4,7 @@ import {
   LoggerModuleAsyncOptions,
   LoggerModuleOptions,
 } from './interfaces/logger-options.interface';
-import { LOGGER_CONFIG_OPTIONS } from './logger.constants';
+import { LOGGER_CONFIG_OPTIONS } from './constants/logger.constant';
 
 @Global()
 @Module({})

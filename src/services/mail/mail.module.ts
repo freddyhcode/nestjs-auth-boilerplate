@@ -4,7 +4,7 @@ import {
   MailModuleAsyncOptions,
   MailModuleOptions,
 } from './interfaces/mail-options.interface';
-import { MAIL_CONFIG_OPTIONS } from './mail.constants';
+import { MAIL_CONFIG_OPTIONS } from './constants/mail.constant';
 
 @Global()
 @Module({})

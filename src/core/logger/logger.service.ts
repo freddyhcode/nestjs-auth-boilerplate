@@ -12,7 +12,7 @@ import {
 } from 'winston';
 import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import { LOGGER_CONFIG_OPTIONS } from './logger.constants';
+import { LOGGER_CONFIG_OPTIONS } from './constants/logger.constant';
 import type { LoggerModuleOptions } from './interfaces/logger-options.interface';
 
 @Injectable()
