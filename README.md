@@ -25,7 +25,7 @@ Boilerplate de autenticación, recuperación de cuenta basada en links de un sol
 > - **Sesiones Simultáneas:** Soporta múltiples dispositivos (no se cierran sesiones al loguearse en otro).
 > - **Rotación:** El `refresh_token` solo se rota si le quedan menos de 2 días de vida (Optimización de DB).
 > - **Dynamic Modules:** Implementación de módulos desacoplados (Mail & Logger) usando el patrón estándar.
-> - **Testing:** Infraestructura base de Jest configurada. Los tests unitarios y E2E están planificados (roadmap).
+> - **Testing:** Infraestructura base de Jest ya está configurada. Actualmente no hay tests escritos; los tests unitarios y de integración (E2E) están planificados en el roadmap.
 > - **Pruebas de estres:** Se incluye soporte para pruebas de estrés con **k6**.
 
 ---
