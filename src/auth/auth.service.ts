@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
 } from '@nestjs/common';
+import type { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '../core/config/config.service';
@@ -32,14 +33,21 @@ export class AuthService {
     return await this.userService.create(userData);
   }
 
-  public async login(email: string, pass: string) {
+  public async login(email: string, pass: string, res: Response) {
     const user = await this.userService.findForAuth(email);
     if (!user || !(await bcrypt.compare(pass, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokens = await this.generateTokens(user);
-    return { ...tokens, user };
+    const { access_token, refresh_token } = await this.generateTokens(user);
+    this.setCookies(res, access_token, refresh_token);
+
+    return { 
+      success: true, 
+      access_token, 
+      refresh_token, 
+      user 
+    };
   }
 
   public async generateTokens(user: User, existingRefreshToken?: string) {
@@ -56,7 +64,12 @@ export class AuthService {
     };
   }
 
-  public async refresh(token: string) {
+  public async refresh(req: Request, res: Response, bodyToken?: string) {
+    const token = bodyToken || req.cookies?.['refresh_token'];
+    if (!token) {
+      throw new UnauthorizedException('Refresh token missing');
+    }
+
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.config.jwt.refreshSecret,
@@ -83,12 +96,21 @@ export class AuthService {
         now.getDate() + this.config.jwt.refreshThresholdDays,
       );
 
+      let tokens: any;
       if (storedToken.expires_at < thresholdDate) {
         await this.refreshTokenRepository.delete(storedToken.id);
-        return this.generateTokens(user);
+        tokens = await this.generateTokens(user);
+      } else {
+        tokens = await this.generateTokens(user, token);
       }
 
-      return this.generateTokens(user, token);
+      this.setCookies(res, tokens.access_token, tokens.refresh_token);
+
+      return { 
+        success: true, 
+        access_token: tokens.access_token, 
+        refresh_token: tokens.refresh_token 
+      };
     } catch (e) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -102,8 +124,7 @@ export class AuthService {
         expiresIn: this.config.jwt.refreshExpiresIn as any,
       },
     );
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    const expiresAt = new Date(Date.now() + this.config.cookie.refreshMaxAge);
 
     await this.refreshTokenRepository
       .createQueryBuilder()
@@ -157,8 +178,15 @@ export class AuthService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      await this.userService.updatePassword(userId, newPass);
-      await this.userService.invalidateRefreshTokens(userId);
+      await this.userService.updatePassword(
+        userId,
+        newPass,
+        queryRunner.manager,
+      );
+      await this.userService.invalidateRefreshTokens(
+        userId,
+        queryRunner.manager,
+      );
       await queryRunner.commitTransaction();
       return {
         statusCode: 200,
@@ -170,5 +198,23 @@ export class AuthService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  public setCookies(res: Response, access_token: string, refresh_token: string) {
+    const cookieOptions = {
+      httpOnly: true,
+      secure: this.config.cookie.secure,
+      sameSite: this.config.cookie.sameSite,
+    };
+
+    res.cookie('access_token', access_token, {
+      ...cookieOptions,
+      maxAge: this.config.cookie.accessMaxAge,
+    });
+
+    res.cookie('refresh_token', refresh_token, {
+      ...cookieOptions,
+      maxAge: this.config.cookie.refreshMaxAge,
+    });
   }
 }

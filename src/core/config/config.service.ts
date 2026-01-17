@@ -27,6 +27,13 @@ export class ConfigService {
     refreshThresholdDays: number;
   };
 
+  readonly cookie: {
+    secure: boolean;
+    sameSite: 'lax' | 'strict' | 'none';
+    accessMaxAge: number;
+    refreshMaxAge: number;
+  };
+
   readonly mail: {
     host: string;
     port: number;
@@ -103,6 +110,13 @@ export class ConfigService {
       console: this.config.LOG_CONSOLE,
       local: this.config.LOG_LOCAL,
     };
+
+    this.cookie = {
+      secure: this.isProduction(),
+      sameSite: this.config.COOKIE_SAMESITE || 'lax',
+      accessMaxAge: this.config.COOKIE_ACCESS_MAX_AGE,
+      refreshMaxAge: this.config.COOKIE_REFRESH_MAX_AGE,
+    };
   }
 
   private validateEnv() {
@@ -141,6 +155,10 @@ export class ConfigService {
         // Logger
         LOG_CONSOLE: z.string().default('true').transform((val) => val === 'true'),
         LOG_LOCAL: z.string().default('true').transform((val) => val === 'true'),
+        // Cookies
+        COOKIE_SAMESITE: z.enum(['lax', 'strict', 'none']).default('lax'),
+        COOKIE_ACCESS_MAX_AGE: z.coerce.number().default(3600000),
+        COOKIE_REFRESH_MAX_AGE: z.coerce.number().default(604800000),
       })
       .superRefine((env, ctx) => {
         if (env.NODE_ENV === 'production' && env.TYPEORM_SYNC) {

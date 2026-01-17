@@ -8,7 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { RefreshToken } from '../auth/entities/refresh-token.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, EntityManager } from 'typeorm';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UpdatePasswordDto } from '../auth/dto/update-password.dto';
@@ -74,10 +74,16 @@ export class UserService {
       .getOne();
   }
 
-  public async updatePassword(userId: string, newPassword: string) {
+  public async updatePassword(
+    userId: string,
+    newPassword: string,
+    manager?: EntityManager,
+  ) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
-    await this.userRepository
+    const repo = manager ? manager.getRepository(User) : this.userRepository;
+
+    await repo
       .createQueryBuilder()
       .update(User)
       .set({ password: hashedPassword })
@@ -85,8 +91,12 @@ export class UserService {
       .execute();
   }
 
-  public async invalidateRefreshTokens(userId: string) {
-    await this.refreshTokenRepository
+  public async invalidateRefreshTokens(userId: string, manager?: EntityManager) {
+    const repo = manager
+      ? manager.getRepository(RefreshToken)
+      : this.refreshTokenRepository;
+
+    await repo
       .createQueryBuilder()
       .delete()
       .from(RefreshToken)
