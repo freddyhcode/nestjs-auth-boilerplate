@@ -119,7 +119,7 @@ cp .env.example .env
 | Variable         | Por Defecto | Descripción                           |
 | :--------------- | :---------- | :------------------------------------ |
 | `THROTTLE_TTL`   | 60000       | Ventana de tiempo por endpoint en ms. |
-| `THROTTLE_LIMIT` | 10          | Peticiones máximas por endpoint.      |
+| `THROTTLE_LIMIT` | 20          | Peticiones máximas por endpoint.      |
 
 #### Logging
 
