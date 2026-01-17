@@ -21,7 +21,7 @@ Boilerplate de autenticación, recuperación de cuenta basada en links de un sol
 > [!IMPORTANT]
 > **Notas:**
 >
-> > - **Sin Swagger:** Implementación minimalista y manual de API. No se incluye Swagger para mantener el proyecto limpio.
+> - **Sin Swagger:** Implementación minimalista y manual de API. No se incluye Swagger para mantener el proyecto limpio.
 > - **Cookies (HttpOnly):** Los tokens se envían como cookies `HttpOnly`, `Secure` y `SameSite=Lax`, mitigando ataques de XSS y CSRF.
 > - **Extracción Híbrida (Auth):** La API soporta tanto el uso de Cookies (Navegador) como el header `Authorization: Bearer` (Postman).
 > - **Integridad:** Transacciones manuales que aseguran que, si un cambio de clave falla, el borrado de sesiones anteriores se cancele automáticamente.
@@ -89,7 +89,7 @@ cp .env.example .env
 | `JWT_SECRET`                   | -           | Clave secreta para firmar Access Tokens. (Cambiar en prod)  |
 | `REFRESH_TOKEN_SECRET`         | -           | Clave secreta para firmar Refresh Tokens. (Cambiar en prod) |
 | `JWT_EXPIRES_IN`               | 1h          | Duración del Access Token (formato string: 1h, 15m).        |
-| `REFRESH_TOKEN_EXPIRES_IN`     | 7d          | Duración del Refresh Token (formato string: 7d, 30d).      |
+| `REFRESH_TOKEN_EXPIRES_IN`     | 7d          | Duración del Refresh Token (formato string: 7d, 30d).       |
 | `REFRESH_TOKEN_THRESHOLD_DAYS` | 2           | Días restantes para autor rotación del refresh token.       |
 
 #### Email (SMTP)
@@ -106,13 +106,13 @@ cp .env.example .env
 
 #### Cliente / CORS
 
-| Variable        | Por Defecto           | Descripción                                    |
-| :-------------- | :-------------------- | :--------------------------------------------- |
-| `FRONTEND_URL`  | http://localhost:5173 | URL del frontend (usado para links en emails). |
-| `FRONTEND_CORS` | http://localhost:5173 | URLs permitidas en CORS.                       |
-| `COOKIE_SAMESITE`| lax                  | Política SameSite para cookies (`lax`, `strict`, `none`). |
-| `COOKIE_ACCESS_MAX_AGE` | 3600000        | Tiempo de vida de la cookie de acceso en ms (1h). |
-| `COOKIE_REFRESH_MAX_AGE`| 604800000      | Tiempo de vida de la cookie de refresh en ms (7d). |
+| Variable                 | Por Defecto           | Descripción                                               |
+| :----------------------- | :-------------------- | :-------------------------------------------------------- |
+| `FRONTEND_URL`           | http://localhost:5173 | URL del frontend (usado para links en emails).            |
+| `FRONTEND_CORS`          | http://localhost:5173 | URLs permitidas en CORS.                                  |
+| `COOKIE_SAMESITE`        | lax                   | Política SameSite para cookies (`lax`, `strict`, `none`). |
+| `COOKIE_ACCESS_MAX_AGE`  | 3600000               | Tiempo de vida de la cookie de acceso en ms (1h).         |
+| `COOKIE_REFRESH_MAX_AGE` | 604800000             | Tiempo de vida de la cookie de refresh en ms (7d).        |
 
 #### Rate Limiting
 
