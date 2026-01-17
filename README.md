@@ -4,6 +4,8 @@
 
 # NestJS Auth Boilerplate
 
+<div align="center">
+
 [![NestJS](https://img.shields.io/badge/NestJS-Framework-red?style=flat-square&logoColor=white)](https://nestjs.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue?style=flat-square)](https://www.postgresql.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Language-blue?style=flat-square)](https://www.typescriptlang.org/)
@@ -15,6 +17,8 @@
 [![Winston](https://img.shields.io/badge/Winston-Logging-67a139?style=flat-square)](https://github.com/winstonjs/winston)
 [![MailDev](https://img.shields.io/badge/MailDev-SMTP--Testing-blue?style=flat-square)](https://github.com/maildev/maildev)
 [![k6](https://img.shields.io/badge/k6-Stress--Testing-black?style=flat-square&logo=k6)](https://k6.io/)
+
+</div>
 
 Boilerplate de autenticación, recuperación de cuenta basada en links de un solo uso (Stateless Links). Incluye monitoreo logs.
 
