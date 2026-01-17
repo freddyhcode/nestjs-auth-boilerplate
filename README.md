@@ -216,7 +216,7 @@ POST /auth/refresh
 Content-Type: application/json
 
 {
-  "token": "refresh_token_aqui"
+  "token": "refresh_token"
 }
 ```
 
