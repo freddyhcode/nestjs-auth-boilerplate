@@ -16,7 +16,7 @@ export class RefreshToken {
   user: User;
 
   @Column()
-  token_hash: string;
+  token: string;
 
   @Column()
   expires_at: Date;

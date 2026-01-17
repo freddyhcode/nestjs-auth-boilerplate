@@ -77,7 +77,7 @@ export class AuthService {
 
       const storedToken = await this.refreshTokenRepository
         .createQueryBuilder('refresh_tokens')
-        .where('refresh_tokens.token_hash = :token', { token })
+        .where('refresh_tokens.token = :token', { token })
         .andWhere('refresh_tokens.userId = :userId', { userId: payload.sub })
         .getOne();
 
@@ -132,7 +132,7 @@ export class AuthService {
       .into(RefreshToken)
       .values({
         user: { id: userId },
-        token_hash: token,
+        token: token,
         expires_at: expiresAt,
       })
       .execute();
