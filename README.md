@@ -22,7 +22,7 @@
 
 Boilerplate de autenticación, recuperación de cuenta basada en links de un solo uso (Stateless Links). Incluye monitoreo logs.
 
-> [!IMPORTANT]
+> [!NOTE]
 > **Notas:**
 >
 > - **Sin Swagger:** Implementación minimalista y manual de API. No se incluye Swagger para mantener el proyecto limpio.
@@ -37,6 +37,14 @@ Boilerplate de autenticación, recuperación de cuenta basada en links de un sol
 
 ---
 
+> [!IMPORTANT]
+> **Seguridad (OWASP 2025)**
+>
+> Se intentaron cubrir todas las OWASP posibles. Este proyecto ha sido diseñado siguiendo los estándares de **OWASP Top 10 (2025)** para garantizar una arquitectura robusta contra las vulnerabilidades más críticas.
+>
+> [Ver documento](docs/owasp.md)
+
+---
 ## Documentación
 
 Para una comprensión de la arquitectura y flujos:
