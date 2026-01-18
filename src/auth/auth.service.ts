@@ -42,11 +42,11 @@ export class AuthService {
     const { access_token, refresh_token } = await this.generateTokens(user);
     this.setCookies(res, access_token, refresh_token);
 
-    return { 
-      success: true, 
-      access_token, 
-      refresh_token, 
-      user 
+    return {
+      success: true,
+      access_token,
+      refresh_token,
+      user,
     };
   }
 
@@ -106,10 +106,10 @@ export class AuthService {
 
       this.setCookies(res, tokens.access_token, tokens.refresh_token);
 
-      return { 
-        success: true, 
-        access_token: tokens.access_token, 
-        refresh_token: tokens.refresh_token 
+      return {
+        success: true,
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
       };
     } catch (e) {
       throw new UnauthorizedException('Invalid refresh token');
@@ -155,11 +155,13 @@ export class AuthService {
     const payload = {
       sub: user.id,
       email: user.email,
+      role: user.role,
       purpose: AuthPurpose.PASSWORD_RESET,
     };
 
     const resetToken = await this.jwtService.signAsync(payload, {
       expiresIn: '5m',
+      secret: this.config.jwt.passwordResetSecret,
     });
 
     try {
@@ -200,7 +202,11 @@ export class AuthService {
     }
   }
 
-  public setCookies(res: Response, access_token: string, refresh_token: string) {
+  public setCookies(
+    res: Response,
+    access_token: string,
+    refresh_token: string,
+  ) {
     const cookieOptions = {
       httpOnly: true,
       secure: this.config.cookie.secure,

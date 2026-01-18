@@ -45,6 +45,7 @@ Boilerplate de autenticación, recuperación de cuenta basada en links de un sol
 > [Ver documento](docs/owasp.md)
 
 ---
+
 ## Documentación
 
 Para una comprensión de la arquitectura y flujos:
@@ -250,7 +251,20 @@ Content-Type: application/json
 
 _Respuesta exitosa (200)_: Correo de recuperación enviado.
 
-#### 2. Endpoints Protegidos
+**Cambiar Contraseña (Con Token de Recuperación)**
+
+```http
+POST /auth/change-password
+Authorization: Bearer {reset_token_from_email}
+
+{
+  "newPassword": "newpassword123"
+}
+```
+
+_Respuesta exitosa (200)_: Contraseña restablecida correctamente.
+
+#### 2. Endpoints Usuario
 
 Los decoradores y los guards detectan automáticamente al usuario ya sea por **Cookie** o por **Bearer Token**.
 
@@ -285,19 +299,6 @@ Authorization: Bearer {access_token}
 ```
 
 _Respuesta exitosa (200)_: Contraseña actualizada y todas las sesiones invalidadas.
-
-**Cambiar Contraseña (Con Token de Recuperación)**
-
-```http
-POST /auth/change-password
-Authorization: Bearer {reset_token_from_email}
-
-{
-  "newPassword": "newpassword123"
-}
-```
-
-_Respuesta exitosa (200)_: Contraseña restablecida correctamente.
 
 ---
 

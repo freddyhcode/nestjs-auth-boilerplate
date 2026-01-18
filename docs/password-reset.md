@@ -2,11 +2,10 @@
 
 ```mermaid
 flowchart TD
-    A[Inicio: Petición /change-password] --> B{¿Usuario en Request?}
-    B -- No --> C[401 Unauthorized: JWT Missing]
-    B -- Sí --> D{"¿payload.purpose == 'password_reset'?"}
-    D -- No --> E["403 Forbidden: Invalid token purpose"]
-    D -- Sí --> F[Validación de Schema DTO exitosa]
-    F --> G[Ejecutar cambio de clave en DB]
-    G --> H[200 OK: Password Updated]
+    A[Inicio: Request /reset-password] --> B{¿Passport valida JWT-RESET?}
+    B -- No --> C["401 Unauthorized: Invalid recovery token"]
+    B -- Sí --> D{"¿user.purpose == 'reset'?"}
+    D -- No --> E["401 Unauthorized: Invalid token purpose"]
+    D -- Sí --> F[handleRequest: Inject User]
+    F --> G[Continuar al siguiente Guard]
 ```

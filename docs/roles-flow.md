@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart TD
-    A[Inicio: Endpoint protegido con @Roles] --> B{¿Ruta posee Metadata de Roles?}
+    A[Inicio: Endpoint protegido con Roles] --> B{¿Ruta posee Roles?}
     B -- No --> C["Permitir Acceso (Ruta sin restricción)"]
     B -- Sí --> D{¿Usuario está Autenticado?}
     D -- No --> E["401 Unauthorized"]

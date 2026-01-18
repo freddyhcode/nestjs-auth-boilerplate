@@ -21,6 +21,7 @@ export class ConfigService {
 
   readonly jwt: {
     secret: string;
+    passwordResetSecret: string;
     refreshSecret: string;
     expiresIn: string;
     refreshExpiresIn: string;
@@ -78,6 +79,7 @@ export class ConfigService {
 
     this.jwt = {
       secret: this.config.JWT_SECRET,
+      passwordResetSecret: this.config.JWT_PASSWORD_RESET_SECRET,
       refreshSecret: this.config.REFRESH_TOKEN_SECRET,
       expiresIn: this.config.JWT_EXPIRES_IN,
       refreshExpiresIn: this.config.REFRESH_TOKEN_EXPIRES_IN,
@@ -131,9 +133,13 @@ export class ConfigService {
         DB_NAME: z.string(),
         DB_USERNAME: z.string(),
         DB_PASSWORD: z.string(),
-        TYPEORM_SYNC: z.string().default('false').transform((val) => val === 'true'),
+        TYPEORM_SYNC: z
+          .string()
+          .default('false')
+          .transform((val) => val === 'true'),
         // JWT
         JWT_SECRET: z.string(),
+        JWT_PASSWORD_RESET_SECRET: z.string(),
         REFRESH_TOKEN_SECRET: z.string(),
         JWT_EXPIRES_IN: z.string().default('1h'),
         REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
@@ -141,8 +147,14 @@ export class ConfigService {
         // Mail
         MAIL_HOST: z.string(),
         MAIL_PORT: z.coerce.number().default(2525),
-        MAIL_SECURE: z.string().default('false').transform((val) => val === 'true'),
-        MAIL_IGNORE_TLS: z.string().default('true').transform((val) => val === 'true'),
+        MAIL_SECURE: z
+          .string()
+          .default('false')
+          .transform((val) => val === 'true'),
+        MAIL_IGNORE_TLS: z
+          .string()
+          .default('true')
+          .transform((val) => val === 'true'),
         MAIL_USER: z.string().optional(),
         MAIL_PASS: z.string().optional(),
         MAIL_FROM: z.string(),
@@ -153,8 +165,14 @@ export class ConfigService {
         THROTTLE_TTL: z.coerce.number().default(60000),
         THROTTLE_LIMIT: z.coerce.number().default(10),
         // Logger
-        LOG_CONSOLE: z.string().default('true').transform((val) => val === 'true'),
-        LOG_LOCAL: z.string().default('true').transform((val) => val === 'true'),
+        LOG_CONSOLE: z
+          .string()
+          .default('true')
+          .transform((val) => val === 'true'),
+        LOG_LOCAL: z
+          .string()
+          .default('true')
+          .transform((val) => val === 'true'),
         // Cookies
         COOKIE_SAMESITE: z.enum(['lax', 'strict', 'none']).default('lax'),
         COOKIE_ACCESS_MAX_AGE: z.coerce.number().default(3600000),

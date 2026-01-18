@@ -4,7 +4,7 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '../../core/config/config.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(private readonly config: ConfigService) {
     super({
       jwtFromRequest: (req) => {
@@ -20,16 +20,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const user: any = {
+    return {
       userId: payload.sub,
       email: payload.email,
       role: payload.role,
     };
-
-    if (payload.purpose) {
-      user.purpose = payload.purpose;
-    }
-
-    return user;
   }
 }
