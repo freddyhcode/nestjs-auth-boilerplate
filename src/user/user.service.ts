@@ -23,7 +23,7 @@ export class UserService {
     private readonly dataSource: DataSource,
   ) {}
 
-  public async create(userData: CreateUserDto): Promise<User> {
+  public async create(userData: CreateUserDto) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -75,7 +75,7 @@ export class UserService {
     return await query.getOne();
   }
 
-  public async getProfile(userId: string): Promise<User> {
+  public async getProfile(userId: string) {
     const user = await this.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -93,7 +93,9 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    if (!(await argon2.verify(user.password, updatePasswordDto.currentPassword))) {
+    if (
+      !(await argon2.verify(user.password, updatePasswordDto.currentPassword))
+    ) {
       throw new UnauthorizedException('Current password does not match');
     }
 

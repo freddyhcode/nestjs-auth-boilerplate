@@ -23,21 +23,19 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
     private readonly dataSource: DataSource,
     private readonly mailService: MailService,
   ) {}
 
-  public async register(userData: CreateUserDto): Promise<User> {
+  public async register(userData: CreateUserDto) {
     return await this.userService.create(userData);
   }
 
   public async login(email: string, pass: string, res: Response) {
     const user = await this.userService.findByEmail(email, true);
-    
+
     if (!user || !(await argon2.verify(user.password, pass))) {
       throw new UnauthorizedException('Invalid credentials');
     }
