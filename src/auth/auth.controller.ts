@@ -43,7 +43,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtResetAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN,UserRole.USER)
+  @Roles(UserRole.ADMIN, UserRole.USER)
   @Post('change-password')
   public async changePassword(
     @CurrentUser('userId') userId,
