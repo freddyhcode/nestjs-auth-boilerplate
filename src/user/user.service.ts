@@ -7,9 +7,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Repository, DataSource, EntityManager } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity';
-import { RefreshToken } from '../auth/entities/refresh-token.entity';
 import * as argon2 from 'argon2';
 import { UpdatePasswordDto } from '../auth/dto/update-password.dto';
 
@@ -18,8 +17,6 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(RefreshToken)
-    private readonly refreshTokenRepository: Repository<RefreshToken>,
     private readonly dataSource: DataSource,
   ) {}
 
