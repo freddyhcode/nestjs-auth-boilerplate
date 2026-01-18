@@ -181,7 +181,12 @@ export class AuthService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const hashedPassword = await argon2.hash(newPass);
+      const hashedPassword = await argon2.hash(newPass, {
+        type: argon2.argon2id,
+        memoryCost: 65536, // 64MB
+        timeCost: 3,
+        parallelism: 4,
+      });
 
       await queryRunner.manager
         .createQueryBuilder()

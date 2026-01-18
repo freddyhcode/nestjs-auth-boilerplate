@@ -30,7 +30,12 @@ export class UserService {
     try {
       const { password, ...userDataRest } = userData;
 
-      const hashedPassword = await argon2.hash(password);
+      const hashedPassword = await argon2.hash(password, {
+        type: argon2.argon2id,
+        memoryCost: 65536, // 64MB
+        timeCost: 3,
+        parallelism: 4,
+      });
 
       const user = queryRunner.manager.create(User, {
         ...userDataRest,
@@ -99,7 +104,12 @@ export class UserService {
       throw new UnauthorizedException('Current password does not match');
     }
 
-    const hashedPassword = await argon2.hash(updatePasswordDto.newPassword);
+    const hashedPassword = await argon2.hash(updatePasswordDto.newPassword, {
+      type: argon2.argon2id,
+      memoryCost: 65536, // 64MB
+      timeCost: 3,
+      parallelism: 4,
+    });
 
     await this.userRepository
       .createQueryBuilder()
