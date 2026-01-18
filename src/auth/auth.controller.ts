@@ -1,4 +1,11 @@
-import { Controller, Post, Body, UseGuards, Res, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Res,
+  Req,
+} from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -50,5 +57,15 @@ export class AuthController {
     @Body() dto: ChangePasswordDto,
   ) {
     return await this.authService.changePassword(userId, dto.newPassword);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.USER)
+  @Post('logout')
+  public async logout(
+    @CurrentUser('userId') userId: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return await this.authService.logout(userId, res);
   }
 }

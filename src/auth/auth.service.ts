@@ -11,7 +11,7 @@ import { MailService } from '../services/mail/mail.service';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, EntityManager } from 'typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { AuthPurpose } from './enums/auth-purpose.enum';
 import * as bcrypt from 'bcrypt';
@@ -23,6 +23,8 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
     private readonly dataSource: DataSource,
@@ -180,15 +182,17 @@ export class AuthService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      await this.userService.updatePassword(
-        userId,
-        newPass,
-        queryRunner.manager,
-      );
-      await this.userService.invalidateRefreshTokens(
-        userId,
-        queryRunner.manager,
-      );
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPass, salt);
+
+      await queryRunner.manager
+        .createQueryBuilder()
+        .update(User)
+        .set({ password: hashedPassword })
+        .where('id = :userId', { userId })
+        .execute();
+
+      await this.invalidateRefreshTokens(userId, queryRunner.manager);
       await queryRunner.commitTransaction();
       return {
         statusCode: 200,
@@ -200,6 +204,22 @@ export class AuthService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  public async invalidateRefreshTokens(
+    userId: string,
+    manager?: EntityManager,
+  ) {
+    const repo = manager
+      ? manager.getRepository(RefreshToken)
+      : this.refreshTokenRepository;
+
+    await repo
+      .createQueryBuilder()
+      .delete()
+      .from(RefreshToken)
+      .where('userId = :userId', { userId })
+      .execute();
   }
 
   public setCookies(
@@ -223,4 +243,23 @@ export class AuthService {
       maxAge: this.config.cookie.refreshMaxAge,
     });
   }
+
+  public async logout(userId: string, res: Response) {
+    const cookieOptions = {
+      httpOnly: true,
+      secure: this.config.cookie.secure,
+      sameSite: this.config.cookie.sameSite,
+    };
+
+    res.clearCookie('access_token', cookieOptions);
+    res.clearCookie('refresh_token', cookieOptions);
+
+    await this.invalidateRefreshTokens(userId);
+
+    return {
+      statusCode: 200,
+      message: 'Logged out successfully',
+    };
+  }
+
 }

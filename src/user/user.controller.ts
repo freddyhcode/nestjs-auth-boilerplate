@@ -1,4 +1,10 @@
-import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -29,10 +35,10 @@ export class UserController {
 
   @Roles(UserRole.USER, UserRole.ADMIN)
   @Patch('update-password')
-  public async updatePasswordSelf(
+  public async updatePassword(
     @CurrentUser('userId') userId,
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
-    return this.userService.updatePasswordSelf(userId, updatePasswordDto);
+    return await this.userService.updatePassword(userId, updatePasswordDto);
   }
 }

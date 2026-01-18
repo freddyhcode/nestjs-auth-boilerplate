@@ -6,10 +6,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RefreshToken } from '../auth/entities/refresh-token.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Repository, DataSource, EntityManager } from 'typeorm';
 import { User } from './entities/user.entity';
+import { RefreshToken } from '../auth/entities/refresh-token.entity';
 import * as bcrypt from 'bcrypt';
 import { UpdatePasswordDto } from '../auth/dto/update-password.dto';
 
@@ -74,34 +74,12 @@ export class UserService {
       .getOne();
   }
 
-  public async updatePassword(
-    userId: string,
-    newPassword: string,
-    manager?: EntityManager,
-  ) {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-    const repo = manager ? manager.getRepository(User) : this.userRepository;
-
-    await repo
-      .createQueryBuilder()
-      .update(User)
-      .set({ password: hashedPassword })
-      .where('id = :userId', { userId })
-      .execute();
-  }
-
-  public async invalidateRefreshTokens(userId: string, manager?: EntityManager) {
-    const repo = manager
-      ? manager.getRepository(RefreshToken)
-      : this.refreshTokenRepository;
-
-    await repo
-      .createQueryBuilder()
-      .delete()
-      .from(RefreshToken)
-      .where('userId = :userId', { userId })
-      .execute();
+  public async findForAuthById(id: string) {
+    return await this.userRepository
+      .createQueryBuilder('users')
+      .addSelect('users.password')
+      .where('users.id = :id', { id })
+      .getOne();
   }
 
   public async getProfile(userId: string): Promise<User> {
@@ -112,7 +90,7 @@ export class UserService {
     return user;
   }
 
-  public async updatePasswordSelf(
+  public async updatePassword(
     userId: string,
     updatePasswordDto: UpdatePasswordDto,
   ) {
@@ -134,12 +112,19 @@ export class UserService {
       throw new UnauthorizedException('The current password is incorrect');
     }
 
-    await this.updatePassword(userId, updatePasswordDto.newPassword);
-    await this.invalidateRefreshTokens(userId);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(updatePasswordDto.newPassword, salt);
+
+    await this.userRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({ password: hashedPassword })
+      .where('id = :userId', { userId })
+      .execute();
 
     return {
       statusCode: 200,
-      message: 'Password updated successfully. Please log in again.',
+      message: 'Password updated successfully.',
     };
   }
 }

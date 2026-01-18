@@ -6,7 +6,9 @@ import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, RefreshToken])],
+  imports: [
+    TypeOrmModule.forFeature([User, RefreshToken]),
+  ],
   controllers: [UserController],
   providers: [UserService],
   exports: [UserService],

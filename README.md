@@ -97,13 +97,14 @@ cp .env.example .env
 
 #### Seguridad (JWT)
 
-| Variable                       | Por Defecto | Descripción                                                 |
-| :----------------------------- | :---------- | :---------------------------------------------------------- |
-| `JWT_SECRET`                   | -           | Clave secreta para firmar Access Tokens. (Cambiar en prod)  |
-| `REFRESH_TOKEN_SECRET`         | -           | Clave secreta para firmar Refresh Tokens. (Cambiar en prod) |
-| `JWT_EXPIRES_IN`               | 1h          | Duración del Access Token (formato string: 1h, 15m).        |
-| `REFRESH_TOKEN_EXPIRES_IN`     | 7d          | Duración del Refresh Token (formato string: 7d, 30d).       |
-| `REFRESH_TOKEN_THRESHOLD_DAYS` | 2           | Días restantes para autor rotación del refresh token.       |
+| Variable                       | Por Defecto | Descripción                                                                      |
+| :----------------------------- | :---------- | :------------------------------------------------------------------------------- |
+| `JWT_SECRET`                   | -           | Clave secreta para firmar los Access Tokens de sesión corta.                     |
+| `JWT_PASSWORD_RESET_SECRET`    | -           | Clave secreta dedicada exclusivamente para tokens de recuperación de contraseña. |
+| `REFRESH_TOKEN_SECRET`         | -           | Clave secreta para firmar Refresh Tokens. (Cambiar en prod)                      |
+| `JWT_EXPIRES_IN`               | 1h          | Duración del Access Token (formato string: 1h, 15m).                             |
+| `REFRESH_TOKEN_EXPIRES_IN`     | 7d          | Duración del Refresh Token (formato string: 7d, 30d).                            |
+| `REFRESH_TOKEN_THRESHOLD_DAYS` | 2           | Días restantes para autor rotación del refresh token.                            |
 
 #### Email (SMTP)
 
