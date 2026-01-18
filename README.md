@@ -27,6 +27,7 @@ Boilerplate de autenticación, recuperación de cuenta basada en links de un sol
 >
 > - **Sin Swagger:** Implementación minimalista y manual de API. No se incluye Swagger para mantener el proyecto limpio.
 > - **Cookies (HttpOnly):** Los tokens se envían como cookies `HttpOnly`, `Secure` y `SameSite=Lax`, mitigando ataques de XSS y CSRF.
+> - **Hashing:** Se usa para evitar el crackeo por GPU (posible en Bcrypt). Argon2 obliga a que el ataque use RAM, haciéndolo mucho más difícil y costoso.
 > - **Extracción Híbrida (Auth):** La API soporta tanto el uso de Cookies (Navegador) como el header `Authorization: Bearer` (Postman).
 > - **Integridad:** Transacciones manuales que aseguran que, si un cambio de clave falla, el borrado de sesiones anteriores se cancele automáticamente.
 > - **Sesiones Simultáneas:** Soporta múltiples dispositivos (no se cierran sesiones al loguearse en otro).
@@ -299,7 +300,7 @@ Authorization: Bearer {access_token}
 }
 ```
 
-_Respuesta exitosa (200)_: Contraseña actualizada y todas las sesiones invalidadas.
+_Respuesta exitosa (200)_: Contraseña actualizada correctamente.
 
 ---
 

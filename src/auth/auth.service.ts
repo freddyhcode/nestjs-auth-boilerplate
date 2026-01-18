@@ -14,7 +14,7 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 import { Repository, DataSource, EntityManager } from 'typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { AuthPurpose } from './enums/auth-purpose.enum';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 import { MailType } from 'src/services/mail/enums/mail-type.enum';
 
 @Injectable()
@@ -36,8 +36,9 @@ export class AuthService {
   }
 
   public async login(email: string, pass: string, res: Response) {
-    const user = await this.userService.findForAuth(email);
-    if (!user || !(await bcrypt.compare(pass, user.password))) {
+    const user = await this.userService.findByEmail(email, true);
+    
+    if (!user || !(await argon2.verify(user.password, pass))) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -182,8 +183,7 @@ export class AuthService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(newPass, salt);
+      const hashedPassword = await argon2.hash(newPass);
 
       await queryRunner.manager
         .createQueryBuilder()
@@ -261,5 +261,4 @@ export class AuthService {
       message: 'Logged out successfully',
     };
   }
-
 }

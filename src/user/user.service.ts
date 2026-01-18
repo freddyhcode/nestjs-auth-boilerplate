@@ -10,7 +10,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { Repository, DataSource, EntityManager } from 'typeorm';
 import { User } from './entities/user.entity';
 import { RefreshToken } from '../auth/entities/refresh-token.entity';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 import { UpdatePasswordDto } from '../auth/dto/update-password.dto';
 
 @Injectable()
@@ -30,8 +30,7 @@ export class UserService {
     try {
       const { password, ...userDataRest } = userData;
 
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = await argon2.hash(password);
 
       const user = queryRunner.manager.create(User, {
         ...userDataRest,
@@ -52,34 +51,28 @@ export class UserService {
     }
   }
 
-  public async findByEmail(email: string) {
-    return await this.userRepository
+  public async findByEmail(email: string, includePassword = false) {
+    const query = this.userRepository
       .createQueryBuilder('users')
-      .where('users.email = :email', { email })
-      .getOne();
+      .where('users.email = :email', { email });
+
+    if (includePassword) {
+      query.addSelect('users.password');
+    }
+
+    return await query.getOne();
   }
 
-  public async findForAuth(email: string) {
-    return await this.userRepository
+  public async findById(id: string, includePassword = false) {
+    const query = this.userRepository
       .createQueryBuilder('users')
-      .addSelect('users.password')
-      .where('users.email = :email', { email })
-      .getOne();
-  }
+      .where('users.id = :id', { id });
 
-  public async findById(id: string) {
-    return await this.userRepository
-      .createQueryBuilder('users')
-      .where('users.id = :id', { id })
-      .getOne();
-  }
+    if (includePassword) {
+      query.addSelect('users.password');
+    }
 
-  public async findForAuthById(id: string) {
-    return await this.userRepository
-      .createQueryBuilder('users')
-      .addSelect('users.password')
-      .where('users.id = :id', { id })
-      .getOne();
+    return await query.getOne();
   }
 
   public async getProfile(userId: string): Promise<User> {
@@ -94,26 +87,17 @@ export class UserService {
     userId: string,
     updatePasswordDto: UpdatePasswordDto,
   ) {
-    const user = await this.userRepository
-      .createQueryBuilder('users')
-      .addSelect('users.password')
-      .where('users.id = :id', { id: userId })
-      .getOne();
+    const user = await this.findById(userId, true);
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const isMatch = await bcrypt.compare(
-      updatePasswordDto.currentPassword,
-      user.password,
-    );
-    if (!isMatch) {
-      throw new UnauthorizedException('The current password is incorrect');
+    if (!(await argon2.verify(user.password, updatePasswordDto.currentPassword))) {
+      throw new UnauthorizedException('Current password does not match');
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(updatePasswordDto.newPassword, salt);
+    const hashedPassword = await argon2.hash(updatePasswordDto.newPassword);
 
     await this.userRepository
       .createQueryBuilder()
