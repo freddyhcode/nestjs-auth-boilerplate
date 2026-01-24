@@ -2,7 +2,7 @@
   "name": "nest-auth-boilerplate",
   "version": "0.0.1",
   "description": "Boilerplate de autenticación con NestJS y PostgreSQL.",
-  "author": "Froddodev (https://github.com/froddo-dev)",
+  "author": "froddodev (https://github.com/froddodev)",
   "private": false,
   "license": "MIT",
   "scripts": {
