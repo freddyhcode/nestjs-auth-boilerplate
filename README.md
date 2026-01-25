@@ -355,7 +355,7 @@ Incluso con el mismo trabajo de CPU, tareas como la firma de JWT o el envío de 
 > [!NOTE]
 > Imagina que, baja dios y le da el password de 128 caracteres a un atacante. Cuando lo envíe a la API, la validación criptográfica será **verdadera** (porque el password coincide con el dummy hash), pero el usuario seguirá siendo **nulo** (porque el email no existe en la base de datos), por lo que el sistema lo echa de inmediato por falta de identidad.
 >
-> El `DUMMY_HASH` es solo un señuelo para gastar CPU y tiempo. Es una puerta que no lleva a ninguna parte.
+> El `DUMMY_HASH_PASSWORD` es solo un señuelo para gastar CPU y tiempo. Es una puerta que no lleva a ninguna parte.
 > **El uso del DUMMY_HASH_PASSWORD**, como dijo Dumbledore: _“Es un hechizo simple pero inquebrantable.”_
 
 ## Rendimiento y Pruebas de Carga (k6)
