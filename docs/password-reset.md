@@ -2,10 +2,10 @@
 
 ```mermaid
 flowchart TD
-    A[Inicio: Request /reset-password] --> B{¿Passport valida JWT-RESET?}
-    B -- No --> C["401 Unauthorized: Invalid recovery token"]
-    B -- Sí --> D{"¿user.purpose == 'reset'?"}
-    D -- No --> E["401 Unauthorized: Invalid token purpose"]
+    A[Request /auth/change-password] --> B{Passport: jwt-reset Strategy}
+    B -- Fallo --> C[401: Invalid recovery token]
+    B -- Éxito --> D{¿purpose == 'password_reset'?}
+    D -- No --> E[401: Invalid token purpose]
     D -- Sí --> F[handleRequest: Inject User]
-    F --> G[Continuar al siguiente Guard]
+    F --> G[Cambio de Password Permitido]
 ```
