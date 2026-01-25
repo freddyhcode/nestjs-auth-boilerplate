@@ -361,9 +361,9 @@ Incluso con el mismo trabajo de CPU, tareas como la firma de JWT o el envío de 
 
 Es crítico que la API identifique correctamente la dirección IP real del cliente. Sin esto, los sistemas de seguridad como Throttling (Rate Limiting), bloqueando al proxy en lugar del atacante.
 
-### El Problema del "IP Masking"
+### El problema: IP Obfuscation por Proxy
 
-Cuando la API corre detrás de proxies reversos (Nginx, Dokploy/Traefik, Cloudflare), NestJS ve por defecto la IP interna del contenedor, perdiendo la IP original del usuario.
+Cuando la API corre detrás de proxies reversos (Nginx, Traefik, Cloudflare), NestJS ve por defecto la IP interna del nodo o del contenedor, perdiendo la IP original del usuario.
 
 ### Solución: Configuración Dinámica de `TRUST_PROXY`
 
@@ -382,7 +382,7 @@ El número en `TRUST_PROXY` indica cuántos servidores "de confianza" debe salta
 - [Escenario: Cloudflare + Dokploy](./docs/trust-proxy-guide.md)
 
 > [!WARNING]
-> Aviso de Seguridad Nunca actives `TRUST_PROXY` (ni pongas un número > 0) si tu API está expuesta directamente a internet sin un proxy delante. Esto permitiría a un atacante suplantar su identidad (IP Spoofing) enviando una cabecera `X-Forwarded-For` falsa, bypasseando tus límites de seguridad.
+> Riesgo de IP Spoofing: Nunca actives un valor mayor a 0 si tu API está expuesta directamente a Internet. Un atacante podría enviar una cabecera `X-Forwarded-For` falsa y saltarse todos tus límites de seguridad (Throttling etc.).
 
 ---
 
