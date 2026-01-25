@@ -2,10 +2,10 @@
 
 ```mermaid
 flowchart TD
-    A[Request API Estándar] --> B{¿Es Publico?}
+    A[Petición API Estándar] --> B{¿Es Pública?}
     B -- Sí --> C[Acceso Libre]
     B -- No --> D{Passport: jwt Strategy}
-    D -- Fallo --> E[401: Invalid token]
-    D -- Éxito --> F[handleRequest: Inject User]
+    D -- Fallo --> E["401: Token Inválido"]
+    D -- Éxito --> F[handleRequest: Inyectar Usuario]
     F --> G[Endpoint Protegido]
 ```
