@@ -327,7 +327,7 @@ Garantiza que el servidor realice el mismo esfuerzo computacional independientem
 
 ```bash
 # Comando para generar este hash (password de 128 caracteres, alta entropía):
-node -e "require('argon2').hash('tu_password_enerada',{ memoryCost: 65536, timeCost: 3, parallelism: 4, type: 0 }).then(console.log)"
+node -e "require('argon2').hash('tu_password_generar',{ memoryCost: 65536, timeCost: 3, parallelism: 4, type: 0 }).then(console.log)"
 # Ejemplo de salida:: DUMMY_HASH_PASSWORD=$argon2id$v=19$m=65536,t=3,p=4$6Q...
 ```
 
