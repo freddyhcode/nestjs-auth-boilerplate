@@ -97,7 +97,7 @@ cp .env.example .env
 | `DB_PASSWORD`  | postgres       | Contraseña de la base de datos.                              |
 | `TYPEORM_SYNC` | true           | Sincronización automática de entidades (Desactivar en prod). |
 
-#### Seguridad (JWT)
+#### JWT
 
 | Variable                       | Por Defecto | Descripción                                                                      |
 | :----------------------------- | :---------- | :------------------------------------------------------------------------------- |
@@ -118,7 +118,7 @@ cp .env.example .env
 | `COOKIE_ACCESS_MAX_AGE`  | 3600000               | Tiempo de vida de la cookie de acceso en ms (1h).         |
 | `COOKIE_REFRESH_MAX_AGE` | 604800000             | Tiempo de vida de la cookie de refresh en ms (7d).        |
 
-#### Seguridad
+#### Anti-Enumeration
 
 | Variable              | Por Defecto   | Descripción                                                                                                                                                                      |
 | :-------------------- | :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
