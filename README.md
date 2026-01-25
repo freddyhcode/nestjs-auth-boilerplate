@@ -166,7 +166,7 @@ docker-compose up -d
 
 Esto levantará **PostgreSQL** (puerto 5432), **Adminer** (puerto 8082) y **MailDev** (SMTP: 1025, Web: 1080).
 
-### 5. Iniciar Aplicación
+### 4. Iniciar Aplicación
 
 ```bash
 yarn install
