@@ -321,7 +321,7 @@ _Respuesta (429)_: Superar el límite de 20 peticiones/min por endpoint bloquea 
 
 Si usas la configuración por defecto (MailDev), puedes visualizar los correos enviados accediendo a [http://localhost:1080](http://localhost:1080).
 
-## Seguridad y Mitigación de Timing Attacks
+## Mitigación de Timing Attacks
 
 Para evitar la **enumeración de usuarios** (que un atacante sepa qué correos están registrados), este boilerplate implementa una defensa de doble capa en los flujos de autenticación.
 
