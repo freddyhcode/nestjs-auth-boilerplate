@@ -33,6 +33,7 @@ export class ConfigService {
     sameSite: 'lax' | 'strict' | 'none';
     accessMaxAge: number;
     refreshMaxAge: number;
+    credentials: boolean;
   };
 
   readonly security: {
@@ -62,6 +63,10 @@ export class ConfigService {
   readonly logger: {
     console: boolean;
     local: boolean;
+  };
+
+  readonly infrastructure: {
+    trustProxy: number;
   };
 
   constructor() {
@@ -95,6 +100,7 @@ export class ConfigService {
       sameSite: this.config.COOKIE_SAMESITE || 'lax',
       accessMaxAge: this.config.COOKIE_ACCESS_MAX_AGE,
       refreshMaxAge: this.config.COOKIE_REFRESH_MAX_AGE,
+      credentials: this.config.COOKIE_CREDENTIALS,
     };
 
     this.security = {
@@ -127,6 +133,10 @@ export class ConfigService {
       console: this.config.LOG_CONSOLE,
       local: this.config.LOG_LOCAL,
     };
+
+    this.infrastructure = {
+      trustProxy: this.config.TRUST_PROXY,
+    };
   }
 
   private validateEnv() {
@@ -156,6 +166,10 @@ export class ConfigService {
         COOKIE_SAMESITE: z.enum(['lax', 'strict', 'none']).default('lax'),
         COOKIE_ACCESS_MAX_AGE: z.coerce.number().default(3600000),
         COOKIE_REFRESH_MAX_AGE: z.coerce.number().default(604800000),
+        COOKIE_CREDENTIALS: z
+          .string()
+          .default('false')
+          .transform((val) => val === 'true'),
         // Security
         DUMMY_HASH_PASSWORD: z.string(),
         // Mail
@@ -173,8 +187,8 @@ export class ConfigService {
         MAIL_PASS: z.string().optional(),
         MAIL_FROM: z.string(),
         // Frontend
-        FRONTEND_URL: z.string().default('*'),
-        FRONTEND_CORS: z.string().default('*'),
+        FRONTEND_URL: z.string().default('http://localhost:5173'),
+        FRONTEND_CORS: z.string().default('http://localhost:5173'),
         // Throttler
         THROTTLE_TTL: z.coerce.number().default(60000),
         THROTTLE_LIMIT: z.coerce.number().default(10),
@@ -187,12 +201,31 @@ export class ConfigService {
           .string()
           .default('true')
           .transform((val) => val === 'true'),
+        TRUST_PROXY: z.coerce.number().int().min(0).default(0),
       })
       .superRefine((env, ctx) => {
         if (env.NODE_ENV === 'production' && env.TYPEORM_SYNC) {
           ctx.addIssue({
             path: ['TYPEORM_SYNC'],
             message: 'TYPEORM_SYNC cannot be active in production',
+            code: 'custom',
+          });
+        }
+
+        if (env.COOKIE_SAMESITE === 'none' && env.NODE_ENV === 'development') {
+          ctx.addIssue({
+            path: ['COOKIE_SAMESITE'],
+            message:
+              'SameSite=none requires HTTPS. Use "lax" for local development.',
+            code: 'custom',
+          });
+        }
+
+        if (env.COOKIE_CREDENTIALS && env.FRONTEND_CORS === '*') {
+          ctx.addIssue({
+            path: ['FRONTEND_CORS'],
+            message:
+              'CORS: Security risk. Replace "*" with a specific domain to use credentials.',
             code: 'custom',
           });
         }

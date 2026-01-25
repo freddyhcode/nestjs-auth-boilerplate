@@ -57,7 +57,6 @@ Para una comprensión de la arquitectura y flujos:
 - [Arquitectura de Módulos](./docs/architecture.md)
 - [Integración del Sistema](./docs/integration.md)
 - [Modelo de Datos (ERD)](./docs/database.md)
-- [Flujo de Mitigación de Timing Attacks (Nivelación de Latencia)](./docs/timing-attack-protection.md)
 
 ---
 
@@ -110,13 +109,14 @@ cp .env.example .env
 
 #### Cliente / CORS
 
-| Variable                 | Por Defecto           | Descripción                                               |
-| :----------------------- | :-------------------- | :-------------------------------------------------------- |
-| `FRONTEND_URL`           | http://localhost:5173 | URL del frontend (usado para links en emails).            |
-| `FRONTEND_CORS`          | http://localhost:5173 | URLs permitidas en CORS.                                  |
-| `COOKIE_SAMESITE`        | lax                   | Política SameSite para cookies (`lax`, `strict`, `none`). |
-| `COOKIE_ACCESS_MAX_AGE`  | 3600000               | Tiempo de vida de la cookie de acceso en ms (1h).         |
-| `COOKIE_REFRESH_MAX_AGE` | 604800000             | Tiempo de vida de la cookie de refresh en ms (7d).        |
+| Variable                 | Por Defecto           | Descripción                                                               |
+| :----------------------- | :-------------------- | :------------------------------------------------------------------------ |
+| `FRONTEND_URL`           | http://localhost:5173 | URL del frontend (usado para links en emails).                            |
+| `FRONTEND_CORS`          | http://localhost:5173 | URLs permitidas en CORS.                                                  |
+| `COOKIE_SAMESITE`        | lax                   | Política SameSite para cookies (`lax`, `strict`, `none`).                 |
+| `COOKIE_ACCESS_MAX_AGE`  | 3600000               | Tiempo de vida de la cookie de acceso en ms (1h).                         |
+| `COOKIE_REFRESH_MAX_AGE` | 604800000             | Tiempo de vida de la cookie de refresh en ms (7d).                        |
+| `COOKIE_CREDENTIALS`     | false                 | Permite el intercambio de cookies en peticiones de origen cruzado (CORS). |
 
 #### Anti-Enumeration
 
@@ -149,6 +149,12 @@ cp .env.example .env
 | :------------ | :---------- | :------------------------------------------ |
 | `LOG_CONSOLE` | true        | Habilitar logs en consola.                  |
 | `LOG_LOCAL`   | false       | Guardar logs en archivos locales (`logs/`). |
+
+#### Infraestructura y Red
+
+| Variable      | Por Defecto | Descripción                                                                                  |
+| :------------ | :---------- | :------------------------------------------------------------------------------------------- |
+| `TRUST_PROXY` | 0           | Número de saltos de confianza (Hops). Vital para obtener la IP real tras proxies/Cloudflare. |
 
 ### 3. Iniciar Base de Datos
 
@@ -352,12 +358,45 @@ Incluso con el mismo trabajo de CPU, tareas como la firma de JWT o el envío de 
 | **Usuario Real**  | Argon2 Real    | Normalizado     | ~207ms            |
 | **Usuario Falso** | Argon2 Dummy   | Normalizado     | ~209ms            |
 
+- [Flujo de Mitigación de Timing Attacks (Nivelación de Latencia)](./docs/timing-attack-protection.md)
+
 > [!NOTE]
 > Imagina que, baja dios y le da el password de 128 caracteres a un atacante. Cuando lo envíe a la API, la validación criptográfica será **verdadera** (porque el password coincide con el dummy hash), pero el usuario seguirá siendo **nulo** (porque el email no existe en la base de datos), por lo que el sistema lo echa de inmediato por falta de identidad.
 >
 > El `DUMMY_HASH_PASSWORD` es solo un señuelo para gastar CPU y tiempo. Es una puerta que no lleva a ninguna parte.
 >
 > El uso del `DUMMY_HASH_PASSWORD`, como dijo Dumbledore: _“Es un hechizo simple pero inquebrantable.”_
+
+---
+
+## Infraestructura: Real IP & Trust Proxy
+
+Es crítico que la API identifique correctamente la dirección IP real del cliente. Sin esto, los sistemas de seguridad como Throttling (Rate Limiting), bloqueando al proxy en lugar del atacante.
+
+### El Problema del "IP Masking"
+
+Cuando la API corre detrás de proxies reversos (Nginx, Dokploy/Traefik, Cloudflare), NestJS ve por defecto la IP interna del contenedor, perdiendo la IP original del usuario.
+
+### Solución: Configuración Dinámica de `TRUST_PROXY`
+
+El boilerplate implementa una lógica para confiar en la cabecera `X-Forwarded-For`.
+
+| Valor | Escenario Típico        | Explicación                                                             |
+| :---- | :---------------------- | :---------------------------------------------------------------------- |
+| `0`   | **Localhost**           | (Default) Desarrollo local. La API recibe la conexión directa.          |
+| `1`   | **Docker / VPS**        | Un solo proxy delante (ej. Nginx o Traefik). Confía en el último salto. |
+| `2`   | **Cloudflare + Docker** | Arquitectura de doble capa. Confía en los últimos 2 saltos.             |
+
+### Entendiendo los Saltos (Hops)
+
+El número en `TRUST_PROXY` indica cuántos servidores "de confianza" debe saltar NestJS hacia atrás para encontrar la IP real.
+
+- [Escenario: Cloudflare + Dokploy](./docs/timing-attack-protection.md)
+
+> [!WARNING]
+> Aviso de Seguridad Nunca actives TRUST_PROXY (ni pongas un número > 0) si tu API está expuesta directamente a internet sin un proxy delante. Esto permitiría a un atacante suplantar su identidad (IP Spoofing) enviando una cabecera X-Forwarded-For falsa, bypasseando tus límites de seguridad.
+
+---
 
 ## Rendimiento y Pruebas de Carga (k6)
 
