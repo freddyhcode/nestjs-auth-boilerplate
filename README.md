@@ -317,18 +317,6 @@ _Respuesta exitosa (200)_: Contraseña actualizada correctamente.
 
 ---
 
-## Limitación de Peticiones (Rate Limiting)
-
-Para proteger los servicios de abusos y ataques de fuerza bruta, el sistema implementa **limitación de peticiones**.
-
-_Respuesta (429)_: Superar el límite de 20 peticiones/min por endpoint bloquea el acceso temporalmente.
-
-## Pruebas de Correo
-
-Si usas la configuración por defecto (MailDev), puedes visualizar los correos enviados accediendo a [http://localhost:1080](http://localhost:1080).
-
----
-
 ## Mitigación de Timing Attacks
 
 Para evitar la **enumeración de usuarios** (que un atacante sepa qué correos están registrados), este boilerplate implementa una defensa de doble capa en los flujos de autenticación.
@@ -404,10 +392,9 @@ Para proteger la disponibilidad del sistema y mitigar ataques de Fuerza Bruta o 
 
 ### Niveles de Protección
 
-| Capa         | Alcance                                       | Configuración            | Propósito                                                                 |
-| :----------- | :-------------------------------------------- | :----------------------- | :------------------------------------------------------------------------ |
-| **Global**   | Toda la API                                   | (`THROTTLE_LIMIT`)       | Evitar el abuso general de recursos y scraping masivo.                    |
-| **Estricta** | Auth (`login`, `register`, `forgot-password`) | Hardcoded: 5 req / 1 min | Bloquear ataques de diccionarios y enumeración de usuarios (hardcodeado). |
+| Capa       | Alcance     | Configuración      | Propósito                                              |
+| :--------- | :---------- | :----------------- | :----------------------------------------------------- |
+| **Global** | Toda la API | (`THROTTLE_LIMIT`) | Evitar el abuso general de recursos y scraping masivo. |
 
 > [!NOTE]
 > Utiliza la IP real del cliente para el conteo de peticiones, gracias a la integración con `TRUST_PROXY`.
@@ -456,6 +443,12 @@ Las pruebas utilizan su propio archivo de configuración:
 
 > [!NOTE]
 > Los fallos (429) durante el `Spike Test` son producto del **Throttler** protegiendo los recursos (comportamiento esperado). Se permite un margen de error del 10% en este escenario.
+
+---
+
+## Pruebas de Correo
+
+Si usas la configuración por defecto (MailDev), puedes visualizar los correos enviados accediendo a [http://localhost:1080](http://localhost:1080).
 
 ---
 
