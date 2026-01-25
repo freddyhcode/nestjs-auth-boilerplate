@@ -399,7 +399,9 @@ Para proteger la disponibilidad del sistema y mitigar ataques de Fuerza Bruta o 
 
 > [!NOTE]
 > Utiliza la IP real del cliente para el conteo de peticiones, gracias a la integración con `TRUST_PROXY`.
+>
 > **Detrás de Proxy:** Si un atacante usa un proxy, el Throttler detecta la IP original en el header `X-Forwarded-For`.
+>
 > **Aislamiento:** Un bloqueo a un atacante no afectará a otros usuarios legítimos.
 > Respuesta de Error (429), Cuando se excede el límite, la API responde con el estándar.
 
