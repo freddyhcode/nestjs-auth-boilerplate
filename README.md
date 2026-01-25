@@ -382,7 +382,7 @@ El número en `TRUST_PROXY` indica cuántos servidores "de confianza" debe salta
 - [Escenario: Cloudflare + Dokploy](./docs/docs/trust-proxy-guide.md)
 
 > [!WARNING]
-> Aviso de Seguridad Nunca actives TRUST_PROXY (ni pongas un número > 0) si tu API está expuesta directamente a internet sin un proxy delante. Esto permitiría a un atacante suplantar su identidad (IP Spoofing) enviando una cabecera X-Forwarded-For falsa, bypasseando tus límites de seguridad.
+> Aviso de Seguridad Nunca actives `TRUST_PROXY` (ni pongas un número > 0) si tu API está expuesta directamente a internet sin un proxy delante. Esto permitiría a un atacante suplantar su identidad (IP Spoofing) enviando una cabecera `X-Forwarded-For` falsa, bypasseando tus límites de seguridad.
 
 ---
 
