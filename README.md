@@ -398,6 +398,25 @@ El número en `TRUST_PROXY` indica cuántos servidores "de confianza" debe salta
 
 ---
 
+## Control de Tráfico (Rate Limiting)
+
+Para proteger la disponibilidad del sistema y mitigar ataques de Fuerza Bruta o DoS, estrategia de limitación de peticiones (Throttling) en dos niveles.
+
+### Niveles de Protección
+
+| Capa         | Alcance                                       | Configuración            | Propósito                                                                 |
+| :----------- | :-------------------------------------------- | :----------------------- | :------------------------------------------------------------------------ |
+| **Global**   | Toda la API                                   | (`THROTTLE_LIMIT`)       | Evitar el abuso general de recursos y scraping masivo.                    |
+| **Estricta** | Auth (`login`, `register`, `forgot-password`) | Hardcoded: 5 req / 1 min | Bloquear ataques de diccionarios y enumeración de usuarios (hardcodeado). |
+
+> [!NOTE]
+> Utiliza la IP real del cliente para el conteo de peticiones, gracias a la integración con `TRUST_PROXY`.
+> **Detrás de Proxy:** Si un atacante usa un proxy, el Throttler detecta la IP original en el header `X-Forwarded-For`.
+> **Aislamiento:** Un bloqueo a un atacante no afectará a otros usuarios legítimos.
+> Respuesta de Error (429), Cuando se excede el límite, la API responde con el estándar.
+
+---
+
 ## Rendimiento y Pruebas de Carga (k6)
 
 Para asegurar la resiliencia del sistema bajo carga, ataques de fuerza bruta o picos de tráfico, se incluye soporte para **Stress Testing** con k6.

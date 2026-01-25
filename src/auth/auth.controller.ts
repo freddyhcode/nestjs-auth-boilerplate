@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-  Res,
-  Req,
-} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Res, Req } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -17,17 +10,20 @@ import { JwtResetAuthGuard } from './guards/jwt-reset-auth.guard';
 import { Roles } from './decorators/roles.decorator';
 import { UserRole } from 'src/user/enums/user-role.enum';
 import { RolesGuard } from './guards/roles.guard';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   public async register(@Body() dto: CreateUserDto) {
     return await this.authService.register(dto);
   }
 
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   public async login(
     @Body() dto: LoginUserDto,
     @Res({ passthrough: true }) res: Response,
@@ -45,6 +41,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   public async forgotPassword(@Body() dto: ForgotPasswordDto) {
     return await this.authService.forgotPassword(dto.email);
   }
