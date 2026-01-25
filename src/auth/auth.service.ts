@@ -34,14 +34,26 @@ export class AuthService {
   }
 
   public async login(email: string, pass: string, res: Response) {
+    const startTime = Date.now();
     const user = await this.userService.findByEmail(email, true);
 
-    if (!user || !(await argon2.verify(user.password, pass))) {
+    let hashToverify = this.config.security.dummyHashPassword;
+
+    if (user) {
+      hashToverify = user.password;
+    }
+
+    const isPasswordValid = await argon2.verify(hashToverify, pass);
+
+    if (!user || !isPasswordValid) {
+      await this.ensureConstantTime(startTime, 200);
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const { access_token, refresh_token } = await this.generateTokens(user);
     this.setCookies(res, access_token, refresh_token);
+
+    await this.ensureConstantTime(startTime, 200);
 
     return {
       success: true,
@@ -125,6 +137,7 @@ export class AuthService {
         expiresIn: this.config.jwt.refreshExpiresIn as any,
       },
     );
+
     const expiresAt = new Date(Date.now() + this.config.cookie.refreshMaxAge);
 
     await this.refreshTokenRepository
@@ -142,38 +155,37 @@ export class AuthService {
   }
 
   public async forgotPassword(email: string) {
+    const startTime = Date.now();
+
     const user = await this.userService.findByEmail(email);
 
-    const genericResponse = {
+    if (user) {
+      const payload = {
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+        purpose: AuthPurpose.PASSWORD_RESET,
+      };
+
+      const resetToken = await this.jwtService.signAsync(payload, {
+        expiresIn: '5m',
+        secret: this.config.jwt.passwordResetSecret,
+      });
+
+      try {
+        await this.mailService.send(
+          MailType.PASSWORD_RESET,
+          user.email,
+          resetToken,
+        );
+      } catch (error) {}
+    }
+
+    await this.ensureConstantTime(startTime, 200);
+    return {
       statusCode: 200,
       message: 'If the email exists, you will receive a recovery link.',
     };
-
-    if (!user) {
-      return genericResponse;
-    }
-
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-      purpose: AuthPurpose.PASSWORD_RESET,
-    };
-
-    const resetToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '5m',
-      secret: this.config.jwt.passwordResetSecret,
-    });
-
-    try {
-      await this.mailService.send(
-        MailType.PASSWORD_RESET,
-        user.email,
-        resetToken,
-      );
-    } catch (error) {}
-
-    return genericResponse;
   }
 
   public async changePassword(userId: string, newPass: string) {
@@ -263,5 +275,14 @@ export class AuthService {
       statusCode: 200,
       message: 'Logged out successfully',
     };
+  }
+
+  /** Mitiga ataques de temporización normalizando el tiempo de respuesta a un mínimo de minMs. */
+  private async ensureConstantTime(startTime: number, minMs: number = 600) {
+    const elapsedTime = Date.now() - startTime;
+    const waitTime = Math.max(0, minMs - elapsedTime);
+    if (waitTime > 0) {
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
+    }
   }
 }

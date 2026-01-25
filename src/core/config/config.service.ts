@@ -35,6 +35,10 @@ export class ConfigService {
     refreshMaxAge: number;
   };
 
+  readonly security: {
+    dummyHashPassword: string;
+  };
+
   readonly mail: {
     host: string;
     port: number;
@@ -86,6 +90,17 @@ export class ConfigService {
       refreshThresholdDays: this.config.REFRESH_TOKEN_THRESHOLD_DAYS,
     };
 
+    this.cookie = {
+      secure: this.isProduction(),
+      sameSite: this.config.COOKIE_SAMESITE || 'lax',
+      accessMaxAge: this.config.COOKIE_ACCESS_MAX_AGE,
+      refreshMaxAge: this.config.COOKIE_REFRESH_MAX_AGE,
+    };
+
+    this.security = {
+      dummyHashPassword: this.config.DUMMY_HASH_PASSWORD,
+    };
+
     this.mail = {
       host: this.config.MAIL_HOST,
       port: this.config.MAIL_PORT,
@@ -112,13 +127,6 @@ export class ConfigService {
       console: this.config.LOG_CONSOLE,
       local: this.config.LOG_LOCAL,
     };
-
-    this.cookie = {
-      secure: this.isProduction(),
-      sameSite: this.config.COOKIE_SAMESITE || 'lax',
-      accessMaxAge: this.config.COOKIE_ACCESS_MAX_AGE,
-      refreshMaxAge: this.config.COOKIE_REFRESH_MAX_AGE,
-    };
   }
 
   private validateEnv() {
@@ -144,6 +152,12 @@ export class ConfigService {
         JWT_EXPIRES_IN: z.string().default('1h'),
         REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
         REFRESH_TOKEN_THRESHOLD_DAYS: z.coerce.number().default(2),
+        // Cookies
+        COOKIE_SAMESITE: z.enum(['lax', 'strict', 'none']).default('lax'),
+        COOKIE_ACCESS_MAX_AGE: z.coerce.number().default(3600000),
+        COOKIE_REFRESH_MAX_AGE: z.coerce.number().default(604800000),
+        // Security
+        DUMMY_HASH_PASSWORD: z.string(),
         // Mail
         MAIL_HOST: z.string(),
         MAIL_PORT: z.coerce.number().default(2525),
@@ -173,10 +187,6 @@ export class ConfigService {
           .string()
           .default('true')
           .transform((val) => val === 'true'),
-        // Cookies
-        COOKIE_SAMESITE: z.enum(['lax', 'strict', 'none']).default('lax'),
-        COOKIE_ACCESS_MAX_AGE: z.coerce.number().default(3600000),
-        COOKIE_REFRESH_MAX_AGE: z.coerce.number().default(604800000),
       })
       .superRefine((env, ctx) => {
         if (env.NODE_ENV === 'production' && env.TYPEORM_SYNC) {
@@ -186,6 +196,16 @@ export class ConfigService {
             code: 'custom',
           });
         }
+
+        if (!env.DUMMY_HASH_PASSWORD) {
+          ctx.addIssue({
+            path: ['DUMMY_HASH_PASSWORD'],
+            message:
+              'DUMMY_HASH_PASSWORD is required to prevent timing attacks during authentication',
+            code: 'custom',
+          });
+        }
+
         if (env.MAIL_IGNORE_TLS && (env.MAIL_USER || env.MAIL_PASS)) {
           ctx.addIssue({
             path: ['MAIL_IGNORE_TLS'],

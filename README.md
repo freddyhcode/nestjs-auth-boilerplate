@@ -57,6 +57,7 @@ Para una comprensión de la arquitectura y flujos:
 - [Arquitectura de Módulos](./docs/architecture.md)
 - [Integración del Sistema](./docs/integration.md)
 - [Modelo de Datos (ERD)](./docs/database.md)
+- [Flujo de Mitigación de Timing Attacks (Nivelación de Latencia)](./docs/timing-attack-protection.md)
 
 ---
 
@@ -107,6 +108,22 @@ cp .env.example .env
 | `REFRESH_TOKEN_EXPIRES_IN`     | 7d          | Duración del Refresh Token (formato string: 7d, 30d).                            |
 | `REFRESH_TOKEN_THRESHOLD_DAYS` | 2           | Días restantes para autor rotación del refresh token.                            |
 
+#### Cliente / CORS
+
+| Variable                 | Por Defecto           | Descripción                                               |
+| :----------------------- | :-------------------- | :-------------------------------------------------------- |
+| `FRONTEND_URL`           | http://localhost:5173 | URL del frontend (usado para links en emails).            |
+| `FRONTEND_CORS`          | http://localhost:5173 | URLs permitidas en CORS.                                  |
+| `COOKIE_SAMESITE`        | lax                   | Política SameSite para cookies (`lax`, `strict`, `none`). |
+| `COOKIE_ACCESS_MAX_AGE`  | 3600000               | Tiempo de vida de la cookie de acceso en ms (1h).         |
+| `COOKIE_REFRESH_MAX_AGE` | 604800000             | Tiempo de vida de la cookie de refresh en ms (7d).        |
+
+#### Seguridad
+
+| Variable              | Por Defecto   | Descripción                                                                                                                                                                      |
+| :-------------------- | :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DUMMY_HASH_PASSWORD` | (Argon2 Hash) | Hash utilizado para mitigar Timing Attacks. Debe generarse con los mismos parámetros de Argon2 que las contraseñas reales para igualar la carga de CPU en usuarios inexistentes. |
+
 #### Email (SMTP)
 
 | Variable          | Por Defecto            | Descripción                                  |
@@ -118,16 +135,6 @@ cp .env.example .env
 | `MAIL_FROM`       | noreply@nestauth.local | Remitente por defecto.                       |
 | `MAIL_USER`       | -                      | Usuario SMTP (si requiere autenticación).    |
 | `MAIL_PASS`       | -                      | Contraseña SMTP (si requiere autenticación). |
-
-#### Cliente / CORS
-
-| Variable                 | Por Defecto           | Descripción                                               |
-| :----------------------- | :-------------------- | :-------------------------------------------------------- |
-| `FRONTEND_URL`           | http://localhost:5173 | URL del frontend (usado para links en emails).            |
-| `FRONTEND_CORS`          | http://localhost:5173 | URLs permitidas en CORS.                                  |
-| `COOKIE_SAMESITE`        | lax                   | Política SameSite para cookies (`lax`, `strict`, `none`). |
-| `COOKIE_ACCESS_MAX_AGE`  | 3600000               | Tiempo de vida de la cookie de acceso en ms (1h).         |
-| `COOKIE_REFRESH_MAX_AGE` | 604800000             | Tiempo de vida de la cookie de refresh en ms (7d).        |
 
 #### Rate Limiting
 
@@ -313,6 +320,40 @@ _Respuesta (429)_: Superar el límite de 20 peticiones/min por endpoint bloquea 
 ## Pruebas de Correo
 
 Si usas la configuración por defecto (MailDev), puedes visualizar los correos enviados accediendo a [http://localhost:1080](http://localhost:1080).
+
+## Seguridad y Mitigación de Timing Attacks
+
+Para evitar la **enumeración de usuarios** (que un atacante sepa qué correos están registrados), este boilerplate implementa una defensa de doble capa en los flujos de autenticación.
+
+### 1. Estrategia de "Dummy Hash"
+
+Garantiza que el servidor realice el mismo esfuerzo computacional independientemente de si el usuario existe o no. Si el email no se encuentra en la base de datos, el sistema verifica un "hash fantasma" para que el uso de CPU (Argon2id) sea idéntico al de una sesión real.
+
+```bash
+# Comando para generar este hash (password de 128 caracteres, alta entropía):
+node -e "require('argon2').hash('tu_password_enerada',{ memoryCost: 65536, timeCost: 3, parallelism: 4, type: 0 }).then(console.log)"
+# Ejemplo de salida:: DUMMY_HASH_PASSWORD=$argon2id$v=19$m=65536,t=3,p=4$6Q...
+```
+
+> [!IMPORTANT]
+> El parámetro `type: 0` asegura que sea **Argon2id**.
+
+### 2. Estrategia de "Tiempo Constante" (Protección de Red)
+
+Incluso con el mismo trabajo de CPU, tareas como la firma de JWT o el envío de correos añaden pequeñas variaciones de tiempo. Utilizamos un mecanismo de **Normalización de latencia** en los endpoints de `login` y `forgot-password`.
+
+- **Funcionamiento:** Se calcula el tiempo de ejecución y se aplica un retardo dinámico para alcanzar un umbral mínimo (ejemplo: 207ms - 310ms).
+- **Resultado:** La respuesta del servidor es estadísticamente indistinguible para un observador externo, neutralizando los **Timing Attacks**.
+
+| Escenario         | Trabajo de CPU | Latencia de Red | Resultado Externo |
+| :---------------- | :------------- | :-------------- | :---------------- |
+| **Usuario Real**  | Argon2 Real    | Normalizado     | ~207ms            |
+| **Usuario Falso** | Argon2 Dummy   | Normalizado     | ~209ms            |
+
+> [!NOTE]
+> Imagina que, baja dios y le da el password de 128 caracteres a un atacante. Cuando lo envíe a la API, la validación criptográfica será **verdadera** (porque el password coincide con el dummy hash), pero el usuario seguirá siendo **nulo** (porque el email no existe en la base de datos), por lo que el sistema lo echa de inmediato por falta de identidad.
+> El `DUMMY_HASH` es solo un señuelo para gastar CPU y tiempo. Es una puerta que no lleva a ninguna parte.
+> **El uso del DUMMY_HASH_PASSWORD**, como dijo Dumbledore: _“Es un hechizo simple pero inquebrantable.”_
 
 ## Rendimiento y Pruebas de Carga (k6)
 
