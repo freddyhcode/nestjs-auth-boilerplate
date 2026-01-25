@@ -33,7 +33,7 @@ import { AllExceptionsLoggerFilter } from './filters/http-exception.filter';
       useFactory: (config: ConfigService) => ({
         throttlers: [
           {
-            name: 'global',
+            name: 'default',
             ttl: config.throttler.ttl,
             limit: config.throttler.limit,
           },

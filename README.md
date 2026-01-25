@@ -392,9 +392,10 @@ Para proteger la disponibilidad del sistema y mitigar ataques de Fuerza Bruta o 
 
 ### Niveles de Protección
 
-| Capa       | Alcance     | Configuración      | Propósito                                              |
-| :--------- | :---------- | :----------------- | :----------------------------------------------------- |
-| **Global** | Toda la API | (`THROTTLE_LIMIT`) | Evitar el abuso general de recursos y scraping masivo. |
+| Capa         | Alcance                                       | Configuración            | Propósito                                                                 |
+| :----------- | :-------------------------------------------- | :----------------------- | :------------------------------------------------------------------------ |
+| **Default**  | Toda la API                                   | (`THROTTLE_LIMIT`)       | Evitar el abuso general de recursos y scraping masivo.                    |
+| **Estricta** | Auth (`login`, `register`, `forgot-password`) | Hardcoded: 5 req / 1 min | Bloquear ataques de diccionarios y enumeración de usuarios (hardcodeado). |
 
 > [!NOTE]
 > Utiliza la IP real del cliente para el conteo de peticiones, gracias a la integración con `TRUST_PROXY`.
