@@ -357,7 +357,7 @@ Incluso con el mismo trabajo de CPU, tareas como la firma de JWT o el envío de 
 >
 > El `DUMMY_HASH_PASSWORD` es solo un señuelo para gastar CPU y tiempo. Es una puerta que no lleva a ninguna parte.
 >
-> **El uso del DUMMY_HASH_PASSWORD**, como dijo Dumbledore: _“Es un hechizo simple pero inquebrantable.”_
+> El uso del `DUMMY_HASH_PASSWORD`, como dijo Dumbledore: _“Es un hechizo simple pero inquebrantable.”_
 
 ## Rendimiento y Pruebas de Carga (k6)
 
