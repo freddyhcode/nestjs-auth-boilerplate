@@ -96,5 +96,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "resolutions": {
+    "lodash": "^4.17.23"
   }
 }
