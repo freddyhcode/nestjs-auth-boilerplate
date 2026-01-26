@@ -1,5 +1,5 @@
 {
-  "name": "nest-auth-boilerplate",
+  "name": "nestjs-auth-boilerplate",
   "version": "0.0.1",
   "description": "Boilerplate de autenticación con NestJS y PostgreSQL.",
   "author": "froddodev (https://github.com/froddodev)",
