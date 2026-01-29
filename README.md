@@ -109,7 +109,9 @@ cp .env.example .env
 
 > [!TIP]
 > **Generación de Secretos Seguros**
+> 
 > Para generar una clave de alta entropía (64 bytes / 128 caracteres):
+> 
 > `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
 
 #### Cliente / CORS
