@@ -107,6 +107,11 @@ cp .env.example .env
 | `REFRESH_TOKEN_EXPIRES_IN`     | 7d          | Duración del Refresh Token (formato string: 7d, 30d).                            |
 | `REFRESH_TOKEN_THRESHOLD_DAYS` | 2           | Días restantes para autor rotación del refresh token.                            |
 
+> [!TIP]
+> **Generación de Secretos Seguros**
+> Para generar una clave de alta entropía (64 bytes / 128 caracteres):
+> `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
+
 #### Cliente / CORS
 
 | Variable                 | Por Defecto           | Descripción                                                               |
