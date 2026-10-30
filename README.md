@@ -65,7 +65,7 @@ Para una comprensión de la arquitectura y flujos:
 ### 1. Clonar el Repositorio
 
 ```bash
-git clone https://github.com/froddodev/nest-auth-boilerplate.git
+git clone https://github.com/freddyhcode/nestjs-auth-boilerplate.git
 cd nest-auth-boilerplate
 ```
 
